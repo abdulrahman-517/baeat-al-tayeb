@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     }
 
     const supabase = getServerSupabase()
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('orders_log')
       .insert({
         cart_details,
@@ -38,8 +38,6 @@ export async function POST(request: Request) {
         customer_info,
         status: 'pending',
       })
-      .select()
-      .single()
 
     if (error) {
       console.error('Supabase insert error:', error)
@@ -50,7 +48,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { message: 'تم استلام الطلب بنجاح', order: data },
+      { message: 'تم استلام الطلب بنجاح' },
       { status: 201 }
     )
   } catch (error) {
