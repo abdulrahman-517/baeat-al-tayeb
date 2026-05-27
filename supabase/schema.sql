@@ -124,6 +124,36 @@ CREATE POLICY "Admin update access for admin_users"
   USING (auth.role() = 'authenticated');
 
 -- ============================================
+-- Hero Images Table (for homepage carousel)
+-- ============================================
+CREATE TABLE IF NOT EXISTS hero_images (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  image_url TEXT NOT NULL,
+  alt_text TEXT DEFAULT '',
+  sort_order INTEGER DEFAULT 0,
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE hero_images ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Public read access for hero_images"
+  ON hero_images FOR SELECT
+  USING (true);
+
+CREATE POLICY "Admin insert access for hero_images"
+  ON hero_images FOR INSERT
+  WITH CHECK (auth.role() = 'authenticated');
+
+CREATE POLICY "Admin update access for hero_images"
+  ON hero_images FOR UPDATE
+  USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Admin delete access for hero_images"
+  ON hero_images FOR DELETE
+  USING (auth.role() = 'authenticated');
+
+-- ============================================
 -- Storage Bucket for Product Images
 -- ============================================
 INSERT INTO storage.buckets (id, name, public) 

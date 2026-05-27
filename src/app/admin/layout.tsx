@@ -13,11 +13,13 @@ import {
   Menu,
   X,
   User,
+  Image,
 } from 'lucide-react'
 
 const sidebarLinks = [
   { href: '/admin', label: 'لوحة التحكم', icon: LayoutDashboard },
   { href: '/admin/products', label: 'المنتجات', icon: Package },
+  { href: '/admin/hero-images', label: 'صور الهيدر', icon: Image },
   { href: '/admin/orders', label: 'الطلبات', icon: ShoppingCart },
   { href: '/admin/settings', label: 'الإعدادات', icon: Settings },
 ]

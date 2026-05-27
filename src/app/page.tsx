@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, Sparkles, ShoppingBag, BadgeCheck, Truck, MessageCircle } from 'lucide-react'
 import { ProductCard } from '@/components/product/ProductCard'
 import { useBestSellers } from '@/hooks/useProducts'
+import { supabase } from '@/lib/supabase'
 
 const categories = [
   {
@@ -31,20 +32,34 @@ const categories = [
 export default function HomePage() {
   const { products: bestSellers, loading } = useBestSellers()
 
-  const heroImages = [
-    'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=1920&q=80',
-    'https://images.unsplash.com/photo-1587017539504-67cfbddac569?auto=format&fit=crop&w=1920&q=80',
-    'https://images.unsplash.com/photo-1563170351-be82bc888aa4?auto=format&fit=crop&w=1920&q=80',
-    'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=1920&q=80',
-    'https://images.unsplash.com/photo-1612902456551-333ac5afa26e?auto=format&fit=crop&w=1920&q=80',
-    'https://images.unsplash.com/photo-1766934587214-86e21b3ae093?auto=format&fit=crop&w=1920&q=80',
-    'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=1920&q=80',
-    'https://images.unsplash.com/photo-1509726360306-3f44543aea4c?auto=format&fit=crop&w=1920&q=80',
-  ]
-
+  const [heroImages, setHeroImages] = useState<string[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [heroLoading, setHeroLoading] = useState(true)
 
   useEffect(() => {
+    fetchHeroImages()
+  }, [])
+
+  async function fetchHeroImages() {
+    const { data, error } = await supabase
+      .from('hero_images')
+      .select('image_url')
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true })
+    if (!error && data?.length) {
+      setHeroImages(data.map((img: { image_url: string }) => img.image_url))
+    } else {
+      setHeroImages([
+        'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=1920&q=80',
+        'https://images.unsplash.com/photo-1587017539504-67cfbddac569?auto=format&fit=crop&w=1920&q=80',
+        'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=1920&q=80',
+      ])
+    }
+    setHeroLoading(false)
+  }
+
+  useEffect(() => {
+    if (!heroImages.length) return
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % heroImages.length)
     }, 5000)
@@ -57,20 +72,22 @@ export default function HomePage() {
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-stone-900">
         <div className="absolute inset-0">
           <AnimatePresence mode="wait">
-            <motion.div
-              key={currentIndex}
-              initial={{ opacity: 0, scale: 1.1 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1 }}
-              className="absolute inset-0"
-            >
-              <img
-                src={heroImages[currentIndex]}
+            {heroImages.length > 0 && (
+              <motion.div
+                key={currentIndex}
+                initial={{ opacity: 0, scale: 1.1 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1 }}
+                className="absolute inset-0"
+              >
+                <img
+                  src={heroImages[currentIndex]}
                 alt=""
                 className="w-full h-full object-cover"
               />
             </motion.div>
+            )}
           </AnimatePresence>
           <div className="absolute inset-0 bg-gradient-to-br from-stone-900/80 via-stone-900/60 to-amber-950/80" />
         </div>

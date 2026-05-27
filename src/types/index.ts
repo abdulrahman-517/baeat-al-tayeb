@@ -62,3 +62,12 @@ export interface ProductFilters {
   color?: string
   sortBy?: 'price_asc' | 'price_desc' | 'newest' | 'name'
 }
+
+export interface HeroImage {
+  id: string
+  image_url: string
+  alt_text: string
+  sort_order: number
+  is_active: boolean
+  created_at: string
+}
