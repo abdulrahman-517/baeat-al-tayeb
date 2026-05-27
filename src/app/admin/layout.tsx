@@ -37,6 +37,12 @@ export default function AdminLayout({
 
   useEffect(() => {
     checkUser()
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') {
+        router.push('/admin/login')
+      }
+    })
+    return () => subscription?.unsubscribe()
   }, [])
 
   async function checkUser() {
@@ -77,8 +83,14 @@ export default function AdminLayout({
     )
   }
 
-  if (!user) {
-    return null
+  if (!user && pathname !== '/admin/login') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-stone-50">
+        <div className="text-center">
+          <p className="text-stone-500">جاري إعادة التوجيه...</p>
+        </div>
+      </div>
+    )
   }
 
   return (

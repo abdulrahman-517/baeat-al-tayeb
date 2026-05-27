@@ -137,18 +137,22 @@ CREATE TABLE IF NOT EXISTS hero_images (
 
 ALTER TABLE hero_images ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Public read access for hero_images" ON hero_images;
 CREATE POLICY "Public read access for hero_images"
   ON hero_images FOR SELECT
   USING (true);
 
+DROP POLICY IF EXISTS "Admin insert access for hero_images" ON hero_images;
 CREATE POLICY "Admin insert access for hero_images"
   ON hero_images FOR INSERT
   WITH CHECK (auth.role() = 'authenticated');
 
+DROP POLICY IF EXISTS "Admin update access for hero_images" ON hero_images;
 CREATE POLICY "Admin update access for hero_images"
   ON hero_images FOR UPDATE
   USING (auth.role() = 'authenticated');
 
+DROP POLICY IF EXISTS "Admin delete access for hero_images" ON hero_images;
 CREATE POLICY "Admin delete access for hero_images"
   ON hero_images FOR DELETE
   USING (auth.role() = 'authenticated');

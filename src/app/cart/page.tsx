@@ -11,6 +11,7 @@ import { generateWhatsAppMessage, openWhatsApp } from '@/lib/whatsapp'
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, getTotal, clearCart } = useCartStore()
+  const isEmpty = items.length === 0
   const [showCheckout, setShowCheckout] = useState(false)
   const [customerInfo, setCustomerInfo] = useState({
     name: '',
@@ -20,19 +21,35 @@ export default function CartPage() {
     notes: '',
   })
   const [orderPlaced, setOrderPlaced] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
-  const total = getTotal()
-  const isEmpty = items.length === 0
-
-  function handleCheckout() {
-    const message = generateWhatsAppMessage(items, total, customerInfo)
-    openWhatsApp(message)
-    setOrderPlaced(true)
-    setTimeout(() => {
-      clearCart()
-      setShowCheckout(false)
-      setOrderPlaced(false)
-    }, 2000)
+  async function handleCheckout() {
+    if (!customerInfo.name || !customerInfo.city) return
+    setSubmitting(true)
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cart_details: items,
+          total_price: getTotal(),
+          customer_info: customerInfo,
+        }),
+      })
+      if (!res.ok) throw new Error('فشل حفظ الطلب')
+      const message = generateWhatsAppMessage(items, getTotal(), customerInfo)
+      openWhatsApp(message)
+      setOrderPlaced(true)
+      setTimeout(() => {
+        clearCart()
+        setShowCheckout(false)
+        setOrderPlaced(false)
+        setSubmitting(false)
+      }, 2000)
+    } catch {
+      alert('حدث خطأ أثناء إرسال الطلب. تأكدي من اتصالك بالإنترنت.')
+      setSubmitting(false)
+    }
   }
 
   if (isEmpty && !orderPlaced) {
@@ -216,6 +233,7 @@ export default function CartPage() {
                     variant="primary"
                     size="lg"
                     onClick={handleCheckout}
+                    loading={submitting}
                     disabled={!customerInfo.name || !customerInfo.city}
                   >
                     <MessageCircle className="w-5 h-5" />
@@ -228,7 +246,7 @@ export default function CartPage() {
               <motion.div className="bg-white p-6 rounded-2xl border border-stone-100">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-stone-600">مجموع المنتجات</span>
-                  <span className="text-stone-900 font-medium">{total.toLocaleString()} ريال</span>
+                  <span className="text-stone-900 font-medium">{getTotal().toLocaleString()} ريال</span>
                 </div>
                 <div className="flex items-center justify-between mb-4 text-sm text-stone-500">
                   <span>الشحن</span>
@@ -236,7 +254,7 @@ export default function CartPage() {
                 </div>
                 <div className="flex items-center justify-between pt-4 border-t border-stone-100 mb-6">
                   <span className="text-lg font-bold text-stone-900">الإجمالي</span>
-                  <span className="text-2xl font-bold text-amber-800">{total.toLocaleString()} ريال</span>
+                  <span className="text-2xl font-bold text-amber-800">{getTotal().toLocaleString()} ريال</span>
                 </div>
                 <Button
                   variant="primary"
