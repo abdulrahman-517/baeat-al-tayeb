@@ -39,7 +39,8 @@ export default function AdminLayout({
     checkUser()
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_OUT') {
-        router.push('/admin/login')
+        localStorage.removeItem('sb-session')
+        router.replace('/admin/login')
       }
     })
     return () => subscription?.unsubscribe()
@@ -49,13 +50,13 @@ export default function AdminLayout({
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user && pathname !== '/admin/login') {
-        router.push('/admin/login')
+        router.replace('/admin/login')
         return
       }
       setUser(user)
     } catch {
       if (pathname !== '/admin/login') {
-        router.push('/admin/login')
+        router.replace('/admin/login')
       }
     } finally {
       setLoading(false)
@@ -64,10 +65,11 @@ export default function AdminLayout({
 
   async function handleLogout() {
     await supabase.auth.signOut()
-    router.push('/admin/login')
+    localStorage.removeItem('sb-session')
+    sessionStorage.clear()
+    router.replace('/admin/login')
   }
 
-  // Don't show admin layout on login page
   if (pathname === '/admin/login') {
     return <>{children}</>
   }
@@ -83,7 +85,7 @@ export default function AdminLayout({
     )
   }
 
-  if (!user && pathname !== '/admin/login') {
+  if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-stone-50">
         <div className="text-center">
@@ -95,7 +97,6 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-screen bg-stone-50 flex">
-      {/* Mobile Sidebar Toggle */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
         className="fixed top-4 right-4 z-50 lg:hidden p-2 bg-white rounded-xl shadow-lg border border-stone-200"
@@ -103,7 +104,6 @@ export default function AdminLayout({
         {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </button>
 
-      {/* Sidebar */}
       <aside
         className={`
           fixed inset-y-0 right-0 z-40 w-72 bg-white border-l border-stone-200 transform transition-transform duration-300
@@ -112,7 +112,6 @@ export default function AdminLayout({
         `}
       >
         <div className="flex flex-col h-full p-6">
-          {/* Logo */}
           <div className="mb-8">
             <Link href="/admin" className="text-2xl font-bold text-stone-900">
               بائعة<span className="text-amber-800"> الطيب</span>
@@ -120,7 +119,6 @@ export default function AdminLayout({
             <p className="text-sm text-stone-400 mt-1">لوحة التحكم</p>
           </div>
 
-          {/* Navigation */}
           <nav className="flex-1 space-y-1">
             {sidebarLinks.map((link) => {
               const isActive = pathname === link.href
@@ -142,14 +140,13 @@ export default function AdminLayout({
             })}
           </nav>
 
-          {/* User Info & Logout */}
           <div className="border-t border-stone-100 pt-4 space-y-3">
             <div className="flex items-center gap-3 px-4 py-3">
               <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
                 <User className="w-5 h-5 text-amber-800" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-medium text-stone-900 truncate">{user.email}</p>
+                <p className="text-sm font-medium text-stone-900 truncate">{user?.email}</p>
                 <p className="text-xs text-stone-400">مدير</p>
               </div>
             </div>
@@ -164,7 +161,6 @@ export default function AdminLayout({
         </div>
       </aside>
 
-      {/* Overlay for mobile */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/30 z-30 lg:hidden"
@@ -172,7 +168,6 @@ export default function AdminLayout({
         />
       )}
 
-      {/* Main Content */}
       <main className="flex-1 p-6 lg:p-8 pt-20 lg:pt-8">{children}</main>
     </div>
   )

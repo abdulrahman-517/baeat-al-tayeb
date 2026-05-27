@@ -10,6 +10,7 @@ export interface Product {
   name: string
   description: string
   price: number
+  purchase_price?: number
   original_price?: number | null
   sizes: string[]
   category_id: string

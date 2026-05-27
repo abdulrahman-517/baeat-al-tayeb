@@ -2,9 +2,17 @@
 
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { ShoppingCart, Search, Eye, X, Filter, Loader2 } from 'lucide-react'
+import { ShoppingCart, Search, Eye, Filter, Loader2, TrendingUp } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { OrderLog } from '@/types'
+
+function calcOrderProfit(cart: any[]): number {
+  return (cart || []).reduce((sum, item: any) => {
+    const price = Number(item.product?.price || 0)
+    const purchase = Number(item.product?.purchase_price || 0)
+    return sum + (price - purchase) * Number(item.quantity)
+  }, 0)
+}
 
 const statusColors: Record<string, string> = {
   pending: 'bg-amber-100 text-amber-800',
@@ -142,6 +150,10 @@ export default function AdminOrdersPage() {
                 <div className="text-left">
                   <p className="text-lg font-bold text-amber-800">
                     {Number(order.total_price).toLocaleString()} ريال
+                  </p>
+                  <p className="text-xs text-emerald-600 flex items-center gap-1 mt-1 justify-end">
+                    <TrendingUp className="w-3 h-3" />
+                    ربح: {calcOrderProfit(order.cart_details).toLocaleString()} ريال
                   </p>
                 </div>
               </div>

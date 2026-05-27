@@ -36,7 +36,10 @@ export default function CartPage() {
           customer_info: customerInfo,
         }),
       })
-      if (!res.ok) throw new Error('فشل حفظ الطلب')
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || 'فشل حفظ الطلب')
+      }
       const message = generateWhatsAppMessage(items, getTotal(), customerInfo)
       openWhatsApp(message)
       setOrderPlaced(true)
@@ -46,8 +49,9 @@ export default function CartPage() {
         setOrderPlaced(false)
         setSubmitting(false)
       }, 2000)
-    } catch {
-      alert('حدث خطأ أثناء إرسال الطلب. تأكدي من اتصالك بالإنترنت.')
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'حدث خطأ أثناء إرسال الطلب'
+      alert(msg)
       setSubmitting(false)
     }
   }

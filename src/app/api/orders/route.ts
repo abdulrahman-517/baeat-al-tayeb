@@ -1,5 +1,14 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
+
+function getServerSupabase() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!url || !key) {
+    throw new Error('Supabase environment variables are not configured')
+  }
+  return createClient(url, key)
+}
 
 export async function POST(request: Request) {
   try {
@@ -20,6 +29,7 @@ export async function POST(request: Request) {
       )
     }
 
+    const supabase = getServerSupabase()
     const { data, error } = await supabase
       .from('orders_log')
       .insert({
@@ -31,7 +41,13 @@ export async function POST(request: Request) {
       .select()
       .single()
 
-    if (error) throw error
+    if (error) {
+      console.error('Supabase insert error:', error)
+      return NextResponse.json(
+        { error: 'فشل حفظ الطلب في قاعدة البيانات' },
+        { status: 500 }
+      )
+    }
 
     return NextResponse.json(
       { message: 'تم استلام الطلب بنجاح', order: data },
@@ -39,10 +55,8 @@ export async function POST(request: Request) {
     )
   } catch (error) {
     console.error('Error creating order:', error)
-    return NextResponse.json(
-      { error: 'حدث خطأ أثناء معالجة الطلب' },
-      { status: 500 }
-    )
+    const message = error instanceof Error ? error.message : 'حدث خطأ أثناء معالجة الطلب'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
 
@@ -55,6 +69,7 @@ export async function GET(request: Request) {
     const from = (page - 1) * limit
     const to = from + limit - 1
 
+    const supabase = getServerSupabase()
     let query = supabase
       .from('orders_log')
       .select('*', { count: 'exact' })

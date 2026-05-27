@@ -112,6 +112,9 @@ export default function AdminProductsPage() {
                   <span>{product.category?.name}</span>
                   <span>{product.price.toLocaleString()} ريال</span>
                   <span>المخزون: {product.stock_quantity}</span>
+                  {product.purchase_price ? (
+                    <span className="text-emerald-600">ربح: {(product.price - product.purchase_price).toLocaleString()} ريال</span>
+                  ) : null}
                   {product.is_best_seller && (
                     <span className="text-amber-800 font-medium">✓ الأكثر مبيعاً</span>
                   )}

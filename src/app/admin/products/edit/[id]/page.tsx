@@ -19,6 +19,7 @@ export default function EditProductPage() {
     name: string
     description: string
     price: string
+    purchase_price: string
     original_price: string
     sizes: string
     category_id: string
@@ -32,6 +33,7 @@ export default function EditProductPage() {
     name: '',
     description: '',
     price: '',
+    purchase_price: '',
     original_price: '',
     sizes: '',
     category_id: '',
@@ -61,6 +63,7 @@ export default function EditProductPage() {
           name: data.name || '',
           description: data.description || '',
           price: data.price?.toString() || '',
+          purchase_price: data.purchase_price?.toString() || '',
           original_price: data.original_price?.toString() || '',
           sizes: (data.sizes || []).join(', '),
           category_id: data.category_id || '',
@@ -101,6 +104,7 @@ export default function EditProductPage() {
           name: formData.name,
           description: formData.description,
           price: parseFloat(formData.price),
+          purchase_price: formData.purchase_price ? parseFloat(formData.purchase_price) : 0,
           original_price: formData.original_price ? parseFloat(formData.original_price) : null,
           sizes,
           category_id: formData.category_id || null,
@@ -152,6 +156,9 @@ export default function EditProductPage() {
         </div>
         <div className="grid grid-cols-2 gap-4">
           <Input label="السعر" type="number" value={formData.price} onChange={(e) => setFormData({ ...formData, price: e.target.value })} required />
+          <Input label="سعر الشراء" type="number" value={formData.purchase_price} onChange={(e) => setFormData({ ...formData, purchase_price: e.target.value })} />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
           <Input label="السعر الأصلي" type="number" value={formData.original_price} onChange={(e) => setFormData({ ...formData, original_price: e.target.value })} />
         </div>
         <div className="grid grid-cols-2 gap-4">

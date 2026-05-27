@@ -1,6 +1,8 @@
 -- ============================================
 -- متجر بائعة الطيب - Database Schema
 -- ============================================
+-- Migration note: For existing databases, run:
+-- ALTER TABLE products ADD COLUMN IF NOT EXISTS purchase_price DECIMAL(10, 2) DEFAULT 0;
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -23,6 +25,7 @@ CREATE TABLE IF NOT EXISTS products (
   name TEXT NOT NULL,
   description TEXT,
   price DECIMAL(10, 2) NOT NULL,
+  purchase_price DECIMAL(10, 2) DEFAULT 0,
   original_price DECIMAL(10, 2),
   sizes TEXT[] DEFAULT '{}',
   category_id UUID REFERENCES categories(id) ON DELETE CASCADE,

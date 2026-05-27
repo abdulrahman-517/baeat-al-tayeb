@@ -16,6 +16,7 @@ export default function NewProductPage() {
     name: string
     description: string
     price: string
+    purchase_price: string
     original_price: string
     sizes: string
     category_id: string
@@ -29,6 +30,7 @@ export default function NewProductPage() {
     name: '',
     description: '',
     price: '',
+    purchase_price: '',
     original_price: '',
     sizes: '',
     category_id: '',
@@ -64,6 +66,7 @@ export default function NewProductPage() {
         name: formData.name,
         description: formData.description,
         price: parseFloat(formData.price),
+        purchase_price: formData.purchase_price ? parseFloat(formData.purchase_price) : 0,
         original_price: formData.original_price ? parseFloat(formData.original_price) : null,
         sizes,
         category_id: formData.category_id || null,
@@ -117,6 +120,15 @@ export default function NewProductPage() {
             onChange={(e) => setFormData({ ...formData, price: e.target.value })}
             required
           />
+          <Input
+            label="سعر الشراء"
+            type="number"
+            placeholder="0"
+            value={formData.purchase_price}
+            onChange={(e) => setFormData({ ...formData, purchase_price: e.target.value })}
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
           <Input
             label="السعر الأصلي (اختياري)"
             type="number"
